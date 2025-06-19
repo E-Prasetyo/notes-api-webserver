@@ -52,7 +52,7 @@ class AuthenticationsHandler {
         };
     }
 
-    async deleteAuthenticationHandler(request, h) {
+    async deleteAuthenticationHandler(request) {
         this._validator.validateDeleteAuthenticationPayload(request.payload);
      
         const { refreshToken } = request.payload;

@@ -4,6 +4,7 @@ const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
+const { user } = require('pg/lib/defaults.js');
  
 class UsersService {
   constructor() {
@@ -42,13 +43,14 @@ class UsersService {
   }
 
   async getUserById(userId) {
+
     const query = {
       text: 'SELECT id, username, fullname FROM users WHERE id = $1',
       values: [userId],
     };
- 
+
     const result = await this._pool.query(query);
- 
+
     if (!result.rows.length) {
       throw new NotFoundError('User tidak ditemukan');
     }
