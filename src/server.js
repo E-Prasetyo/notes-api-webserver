@@ -3,6 +3,8 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
 
 //notes
 const notes = require('./api/notes');
@@ -30,6 +32,13 @@ const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const ExportsValidator = require('./validator/exports');
 
+// uploads
+const uploads = require('./api/uploads');
+//const StorageService = require('./services/storage/StorageService');
+const StorageService = require('./services/S3/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
+
 // handle error
 const ClientError = require('./exceptions/ClientError');
 
@@ -39,6 +48,8 @@ const init = async () => {
   const notesService = new NotesService(collaborationsService);
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  //const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+  const storageService = new StorageService();
  
 
   const server = Hapi.server({
@@ -56,6 +67,9 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert,
+    }
   ]);
  
   // mendefinisikan strategy autentikasi jwt
@@ -112,6 +126,13 @@ const init = async () => {
       options: {
         service: ProducerService,
         validator: ExportsValidator,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        validator: UploadsValidator,
       },
     },
   ]);
